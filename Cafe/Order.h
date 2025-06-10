@@ -1,34 +1,45 @@
 #pragma once
 
-#include "Order.h"
-#include "MenuManager.h" // Для доступа к меню
-#include "TableManager.h" // Для управления столами
-#include <vector>
 #include <string>
-#include <fstream>
-#include <numeric> // Для std::iota
+#include <vector>
+#include <utility> // Для std::pair
+#include <ctime>   // Для timestamp
+#include <iomanip> // Для std::put_time
 
-class OrderManager {
+class Order {
+public:
+    struct OrderItem {
+        std::string dishName;
+        double pricePerUnit;
+        int quantity;
+    };
+
 private:
-    std::vector<Order> orders;
-    MenuManager& menuManager; // Ссылка на менеджер меню
-    TableManager& tableManager; // Ссылка на менеджер столов
-    int nextOrderId;
-    const std::string FILENAME = "orders.txt";
-
-    void saveOrders();
-    void loadOrders();
-    void updateNextOrderId(); // Обновляет nextOrderId на основе загруженных заказов
+    int id;
+    std::string timestamp; // Формат YYYY-MM-DD HH:MM:SS
+    std::vector<OrderItem> items;
+    double totalAmount;
+    bool cancelled;
+    int tableNumber;
 
 public:
-    OrderManager(MenuManager& menuMgr, TableManager& tableMgr); // Конструктор принимает ссылки
+    Order(int id, int tableNumber);
 
-    void createOrder();
-    void cancelOrder();
-    void displayOrders() const;
-    void displayCompletedOrders() const;
+    // Геттеры
+    int getId() const;
+    std::string getTimestamp() const;
+    const std::vector<OrderItem>& getItems() const;
+    double getTotalAmount() const;
+    bool isCancelled() const;
+    int getTableNumber() const;
 
-    // Вспомогательный метод для других менеджеров
-    Order* getOrderById(int id);
-    const std::vector<Order>& getAllOrders() const; // Для финансового модуля
+    // Методы
+    void addItem(const std::string& dishName, double pricePerUnit, int quantity);
+    void calculateTotal();
+    void cancel();
+    void display() const;
+
+    // Для сохранения/загрузки
+    std::string serialize() const;
+    static Order deserialize(const std::vector<std::string>& lines);
 };
