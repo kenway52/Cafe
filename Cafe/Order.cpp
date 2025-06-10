@@ -1,4 +1,3 @@
-
 #include "Order.h"
 #include <numeric> // Для std::accumulate
 #include <sstream> // Для stringstream
